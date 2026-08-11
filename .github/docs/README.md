@@ -2,6 +2,14 @@
 
 A complete inventory management system with automated stock monitoring, built with FastAPI, MongoDB, and React.
 
+## Documentation
+
+| File | Purpose |
+|------|---------|
+| [`feature.md`](feature.md) | Every feature in the system |
+| [`architecture.md`](architecture.md) | Architecture overview and dated change log |
+| [`../assets/`](../assets/) | Screenshots, diagrams, and images (empty for now) |
+
 ## Features
 
 - **Product Management**: Full CRUD for products with SKU, pricing, categories, suppliers, and locations
