@@ -35,9 +35,10 @@ def run_backend():
     return p
 
 def run_frontend():
-    print("Starting frontend server...")
+    print("Starting frontend (Vite dev server)...")
     os.chdir(FRONTEND_DIR)
-    p = subprocess.Popen([sys.executable, '-m', 'http.server', '3000'])
+    npm = 'npm.cmd' if os.name == 'nt' else 'npm'
+    p = subprocess.Popen([npm, 'run', 'dev'])
     processes.append(p)
     return p
 
@@ -73,7 +74,7 @@ def main():
     print("=" * 50)
     print(f"Backend API:  http://localhost:8000")
     print(f"API Docs:     http://localhost:8000/docs")
-    print(f"Frontend:     http://localhost:3000")
+    print(f"Frontend:     http://localhost:5173")
     print(f"Health Check: http://localhost:8000/health")
     print("=" * 50)
     print("\nPress Ctrl+C to stop all services\n")

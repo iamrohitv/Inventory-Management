@@ -1,54 +1,51 @@
 # E-Commerce Inventory Manager
 
-A complete inventory management system with AI-powered stock monitoring, built with FastAPI, MongoDB, and Tailwind CSS.
+A complete inventory management system with automated stock monitoring, built with FastAPI, MongoDB, and React.
 
 ## Features
 
-- **Product Management**: 100 products (itemxxx1 - itemxxx100) with full CRUD
-- **Real-time Inventory Tracking**: Stock levels, reservations, adjustments
-- **AI Inventory Agent**: Automated monitoring every 5 minutes
-  - Low stock alerts (configurable threshold)
-  - Critical stock alerts (< 3 units)
+- **Product Management**: Full CRUD for products with SKU, pricing, categories, suppliers, and locations
+- **Real-time Inventory Tracking**: Stock levels, reservations, adjustments, audit logs
+- **Automated Stock Monitoring**: Background agent checks inventory on a schedule
+  - Low stock alerts (reorder point based)
+  - Critical stock alerts (configurable threshold)
   - Out of stock detection
   - Reorder recommendations
-  - Email notifications (optional)
-- **Dashboard**: Real-time stats, product table, alerts panel
-- **Inventory Logs**: Complete audit trail of all stock changes
-- **CSV Export**: Download inventory data
+- **Dashboard**: Stock status summary, category breakdown, live product table
+- **Alerts Panel**: Filter, acknowledge, and track inventory alerts
+- **Inventory Logs**: Complete paginated audit trail of all stock changes
 
 ## Tech Stack
 
-- **Backend**: FastAPI (Python 3.10+)
-- **Database**: MongoDB (async with Motor)
-- **Scheduler**: APScheduler for AI agent
-- **Frontend**: HTML, Vanilla JS, Tailwind CSS (CDN)
-- **Architecture**: REST API + Background Agent
+- **Backend**: FastAPI (Python 3.10+), Motor (async MongoDB)
+- **Database**: MongoDB
+- **Scheduler**: APScheduler for the monitoring agent
+- **Frontend**: React 18 + Vite + Tailwind CSS, React Router, REST API client
 
 ## Quick Start
 
 ### Prerequisites
 
 - Python 3.10+
+- Node.js 18+
 - MongoDB running on localhost:27017
-- pip packages: `pip install -r backend/requirements.txt`
 
 ### Installation
 
 ```bash
-# Clone/navigate to project
-cd ecommerce-inventory
-
-# Install backend dependencies
+# Backend
 cd backend
 pip install -r requirements.txt
+cp .env.example .env   # optional
 
-# Configure environment (optional)
-cp .env.example .env  # Edit with your settings
+# Frontend
+cd ../frontend
+npm install
 ```
 
 ### Running
 
-**Option 1: Automated startup script**
+**Option 1: Automated startup script** (requires both installed)
 ```bash
 cd scripts
 python start.py
@@ -65,14 +62,23 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 Terminal 2 - Frontend:
 ```bash
 cd frontend
-python -m http.server 3000
+npm run dev
 ```
 
 ### Access Points
 
-- **Frontend Dashboard**: http://localhost:3000
+- **Frontend Dashboard**: http://localhost:5173
 - **API Documentation**: http://localhost:8000/docs
 - **Health Check**: http://localhost:8000/health
+
+### Testing
+
+Backend tests run against an in-memory MongoDB (no server needed):
+
+```bash
+cd backend
+python -m pytest
+```
 
 ## API Endpoints
 
@@ -101,21 +107,21 @@ python -m http.server 3000
 
 ## AI Agent Configuration
 
-The agent runs automatically every 5 minutes (configurable via `AGENT_CHECK_INTERVAL_MINUTES`). It:
+The monitoring agent runs automatically every 5 minutes (configurable via `AGENT_CHECK_INTERVAL_MINUTES`). It:
 
 1. Scans all products
 2. Creates alerts for:
    - **Out of Stock**: 0 available
    - **Critical Stock**: ≤ 3 available
    - **Low Stock**: ≤ reorder_point
-   - **Reorder Needed**: Within 5 of reorder_point
+   - **Reorder Needed**: Within `REORDER_NEARBY_MARGIN` of reorder_point
 3. Sends email notifications (if SMTP configured)
 4. Generates daily summary at midnight
 5. Cleans up old acknowledged alerts (30 days)
 
 ### Thresholds
-- `LOW_STOCK_THRESHOLD`: 10 (default reorder point)
 - `CRITICAL_STOCK_THRESHOLD`: 3
+- `REORDER_NEARBY_MARGIN`: 5
 
 ## Product Seeding
 
@@ -134,8 +140,8 @@ Run `POST /api/v1/products/seed?count=100` to create 100 products:
 | `MONGODB_URL` | `mongodb://localhost:27017` | MongoDB connection string |
 | `DATABASE_NAME` | `ecommerce_inventory` | Database name |
 | `AGENT_CHECK_INTERVAL_MINUTES` | `5` | Agent check frequency |
-| `LOW_STOCK_THRESHOLD` | `10` | Default reorder point |
 | `CRITICAL_STOCK_THRESHOLD` | `3` | Critical stock level |
+| `REORDER_NEARBY_MARGIN` | `5` | "Reorder soon" alert margin |
 | `SMTP_HOST` | - | SMTP server for emails |
 | `SMTP_PORT` | `587` | SMTP port |
 | `SMTP_USER` | - | SMTP username |
@@ -145,20 +151,26 @@ Run `POST /api/v1/products/seed?count=100` to create 100 products:
 ## Project Structure
 
 ```
-ecommerce-inventory/
+inventory-management/
 ├── backend/
 │   ├── app/
-│   │   ├── api/           # REST endpoints
-│   │   ├── models/        # Pydantic models
+│   │   ├── api/           # REST endpoints + dependencies
+│   │   ├── models/        # Pydantic/MongoDB models
+│   │   ├── schemas/       # API request/response schemas
 │   │   ├── services/      # Business logic
-│   │   ├── agents/        # AI inventory agent
-│   │   └── core/          # Config, database
-│   ├── requirements.txt
-│   └── .env
+│   │   ├── agents/        # Background monitoring agent
+│   │   └── core/          # Config, database, exceptions
+│   ├── tests/             # pytest suite (in-memory MongoDB)
+│   └── requirements.txt
 ├── frontend/
-│   ├── index.html         # Dashboard UI
-│   ├── js/app.js          # Frontend logic
-│   └── css/               # (Tailwind via CDN)
+│   ├── src/
+│   │   ├── components/    # UI components
+│   │   ├── pages/         # Dashboard, Products, Alerts, Logs
+│   │   ├── context/       # Toast notifications
+│   │   ├── api.js         # REST API client
+│   │   ├── App.jsx        # Router
+│   │   └── main.jsx       # Entry point
+│   └── package.json
 ├── scripts/
 │   └── start.py           # Startup script
 └── README.md
@@ -167,17 +179,17 @@ ecommerce-inventory/
 ## Development
 
 ### Adding New Alert Types
-1. Update `AlertBase.alert_type` pattern in `models/inventory.py`
+1. Update `AlertType` in `app/models/alert.py`
 2. Add handling in `InventoryAgent._create_alert()`
-3. Add icon in `frontend/js/app.js` `getAlertIcon()`
+3. Update the alerts UI in `frontend/src/pages/Alerts.jsx`
 
 ### Customizing Agent Logic
 Modify `InventoryAgent.check_inventory()` in `agents/inventory_agent.py`
 
 ### Adding API Endpoints
-1. Add route in `api/inventory.py`
-2. Add service method in `services/inventory_service.py`
-3. Update frontend in `js/app.js`
+1. Add route in `app/api/routes/`
+2. Add service method in `app/services/`
+3. Add a method in `frontend/src/api.js` and use it from the pages
 
 ## License
 

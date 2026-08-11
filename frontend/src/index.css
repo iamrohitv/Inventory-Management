@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-100 text-slate-900 font-sans antialiased dark:bg-slate-950 dark:text-slate-100;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+  }
+  .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #334155;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideIn {
+  from { transform: translateX(24px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes scaleIn {
+  from { transform: scale(.96); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.animate-fade-in { animation: fadeIn .3s ease-out both; }
+.animate-slide-in { animation: slideIn .3s ease-out both; }
+.animate-scale-in { animation: scaleIn .2s ease-out both; }

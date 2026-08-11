@@ -1,2 +1,27 @@
-query
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Node
+node_modules/
+frontend/dist/
+
+# Env / secrets
+.env
+backend/.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Local / generated
 environment/
+query
