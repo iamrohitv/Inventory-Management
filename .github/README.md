@@ -6,9 +6,9 @@ A complete inventory management system with automated stock monitoring, built wi
 
 | File | Purpose |
 |------|---------|
-| [`feature.md`](feature.md) | Every feature in the system |
-| [`architecture.md`](architecture.md) | Architecture overview and dated change log |
-| [`../assets/`](../assets/) | Screenshots, diagrams, and images (empty for now) |
+| [`docs/feature.md`](docs/feature.md) | Every feature in the system |
+| [`docs/architecture.md`](docs/architecture.md) | Architecture overview and dated change log |
+| [`assets/`](assets/) | Screenshots, diagrams, and images (empty for now) |
 
 ## Features
 
